@@ -1,6 +1,3 @@
-from sys import argv
-
-
 def look_and_say(digits: str) -> str:
     length = len(digits)
     current = 0
@@ -25,9 +22,18 @@ def look_and_say(digits: str) -> str:
     return result
 
 
-result = argv[1]
+def main():
+    from sys import argv
 
-for _ in range(int(argv[2])):
-    result = look_and_say(result)
+    result = argv[1]
+    steps = int(argv[2])
 
-print(len(result))
+    for _ in range(steps):
+        result = look_and_say(result)
+
+    print(len(result))
+
+
+if __name__ == '__main__':
+    main()
+

@@ -53,12 +53,16 @@ def increment(s: str) -> str:
     return "".join(result[::-1])
 
 
-if __name__ == "__main__":
+def main():
     from sys import argv
 
     password = increment(argv[1])
-
     while not rules(password):
         password = increment(password)
 
     print(password)
+
+
+if __name__ == "__main__":
+    main()
+

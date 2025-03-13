@@ -1,3 +1,5 @@
+from sys import argv
+
 def look_and_say(digits: str) -> str:
     length = len(digits)
     current = 0
@@ -21,19 +23,10 @@ def look_and_say(digits: str) -> str:
 
     return result
 
+steps = int(argv[1]) if len(argv) > 1 else 40
+result = input()
 
-def main():
-    from sys import argv
+for _ in range(steps):
+    result = look_and_say(result)
 
-    result = argv[1]
-    steps = int(argv[2])
-
-    for _ in range(steps):
-        result = look_and_say(result)
-
-    print(len(result))
-
-
-if __name__ == '__main__':
-    main()
-
+print(len(result))

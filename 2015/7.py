@@ -1,34 +1,24 @@
+from sys import argv, stdin
 from operator import and_, rshift, lshift, or_, invert
 
 
-with open("input.txt", "r") as f:
-    instructions = [line.strip() for line in f.readlines()]
+wires: dict[str, list | str | int] = {}
 
-wires = {}
-
-operators = {
-    "AND": and_,
-    "OR": or_,
-    "LSHIFT": lshift,
-    "RSHIFT": rshift,
-    "NOT": invert,
-}
-
-for instruction in instructions:
-    leftside, rightside = (s.strip() for s in instruction.split("->"))
+for instruction in filter(None, map(str.strip, stdin)):
+    leftside, rightside = map(str.strip, instruction.split("->", 1))
     leftside = leftside.split()
 
     name = rightside
-    operator = None
+    op = None
     left_wire = None
     right_wire = None
 
     if len(leftside) == 1:
         left_wire = leftside[0]
     elif len(leftside) == 2:
-        operator, right_wire = leftside
+        op, right_wire = leftside
     elif len(leftside) == 3:
-        left_wire, operator, right_wire = leftside
+        left_wire, op, right_wire = leftside
 
     if left_wire is not None and left_wire.isdigit():
         left_wire = int(left_wire)
@@ -36,16 +26,28 @@ for instruction in instructions:
     if right_wire is not None and right_wire.isdigit():
         right_wire = int(right_wire)
 
-    if operator is not None:
-        operator = operators[operator]
+    match op:
+        case "AND":
+            op = and_
+        case "OR":
+            op = or_
+        case "LSHIFT":
+            op = lshift
+        case "RSHIFT":
+            op = rshift
+        case "NOT":
+            op = invert
 
-    leftside = [p for p in [left_wire, operator, right_wire]
-                if p is not None]
+    leftside = [p for p in [left_wire, op, right_wire] if p is not None]
 
     wires[name] = leftside[0] if len(leftside) == 1 else leftside
 
 
-def find(name):
+if len(argv) > 1:
+    wires["b"] = int(argv[1])
+
+
+def find(name: str):
     exp = wires[name]
 
     result = None
@@ -72,5 +74,5 @@ def find(name):
 
     return result
 
-wires["b"] = 3176
-print(find('a'))
+
+print(find("a"))

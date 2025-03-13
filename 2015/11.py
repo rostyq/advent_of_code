@@ -7,14 +7,14 @@ MAX = ord(max(ascii_lowercase))
 
 def rule_1(s: str) -> bool:
     for i in range(len(s) - 3):
-        if s[i:i+3] in ascii_lowercase:
+        if s[i : i + 3] in ascii_lowercase:
             return True
     return False
 
 
 def rule_2(s: str) -> bool:
     for l in s:
-        if l in 'iol':
+        if l in "iol":
             return False
     return True
 
@@ -53,16 +53,8 @@ def increment(s: str) -> str:
     return "".join(result[::-1])
 
 
-def main():
-    from sys import argv
+password = increment(input())
+while not rules(password):
+    password = increment(password)
 
-    password = increment(argv[1])
-    while not rules(password):
-        password = increment(password)
-
-    print(password)
-
-
-if __name__ == "__main__":
-    main()
-
+print(password)

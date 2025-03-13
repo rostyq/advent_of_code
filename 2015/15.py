@@ -1,7 +1,8 @@
+from sys import stdin, argv
 from functools import reduce
 from itertools import product
-from pathlib import Path
 from dataclasses import dataclass
+
 
 @dataclass
 class Properties:
@@ -11,7 +12,7 @@ class Properties:
     texture: int
     calories: int
 
-    def __add__(self, other: 'Properties') -> 'Properties':
+    def __add__(self, other: "Properties") -> "Properties":
         return self.__class__(
             capacity=self.capacity + other.capacity,
             durability=self.durability + other.durability,
@@ -19,8 +20,8 @@ class Properties:
             texture=self.texture + other.texture,
             calories=self.calories + other.calories,
         )
-    
-    def __iadd__(self, other: 'Properties') -> 'Properties':
+
+    def __iadd__(self, other: "Properties") -> "Properties":
         self.capacity = self.capacity + other.capacity
         self.durability = self.durability + other.durability
         self.flavor = self.flavor + other.flavor
@@ -33,11 +34,11 @@ class Properties:
         return reduce(
             lambda s, v: s * max(v, 0),
             [self.capacity, self.durability, self.flavor, self.texture],
-            1
+            1,
         )
-    
+
     @classmethod
-    def zero(cls) -> 'Properties':
+    def zero(cls):
         return cls(0, 0, 0, 0, 0)
 
 
@@ -45,7 +46,7 @@ class Properties:
 class Ingridient(Properties):
     name: str
 
-    def __mul__(self, other: int) -> 'Ingridient':
+    def __mul__(self, other: int) -> "Ingridient":
         return self.__class__(
             name=self.name,
             capacity=self.capacity * other,
@@ -54,21 +55,26 @@ class Ingridient(Properties):
             texture=self.texture * other,
             calories=self.calories * other,
         )
-    
+
     def __hash__(self):
         return hash(self.name)
-    
 
-def recipe_score(recipe: dict[str, int], ingridients: list[Ingridient]) -> int:
+
+def recipe_score(
+    recipe: dict[str, int],
+    ingridients: list[Ingridient],
+    *,
+    calories: int | None = None
+) -> int:
     # print("recipe:", recipe)
     mix = Properties.zero()
     for ingridient in ingridients:
-        mix += (ingridient * recipe[ingridient.name])
+        mix += ingridient * recipe[ingridient.name]
 
     # print("result:", mix)
     # print("score:", mix.score())
-    
-    return mix.score()
+
+    return mix.score() if calories is None or mix.calories == calories else 0
 
 
 def generate_recipes(names: set[str], total: int):
@@ -80,21 +86,25 @@ def generate_recipes(names: set[str], total: int):
         else:
             continue
 
+
 ingridients: set[Ingridient] = set()
 
-with open(Path(__file__).parent / 'input.txt', 'r') as f:
-    for line in f.readlines():
-        name, description = line.strip().split(":")
+for line in filter(None, map(str.strip, stdin)):
+    name, description = line.split(":")
 
-        stats = [desc.strip().split(" ") for desc in description.split(",")]
-        stats = {stat: int(value) for (stat, value) in stats}
+    stats = [desc.strip().split(" ") for desc in description.split(",")]
+    stats = {stat: int(value) for (stat, value) in stats}
 
-        ingridients.add(Ingridient(name=name, **stats))
+    ingridients.add(Ingridient(name=name, **stats))
 
 print(
     max(
         [
-            recipe_score(recipe, ingridients)
+            recipe_score(
+                recipe,
+                ingridients,
+                calories=500 if len(argv) > 1 and argv[1] == "2" else None,
+            )
             for recipe in generate_recipes(set(i.name for i in ingridients), 100)
         ]
     )

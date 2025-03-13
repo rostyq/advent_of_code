@@ -1,5 +1,6 @@
 import re
 from functools import reduce
+from sys import stdin, argv
 
 REQUIRED_FIELDS = {
     "byr",  # (Birth Year)
@@ -51,7 +52,6 @@ def check_height(s: str) -> bool:
         return check_bounds(value, 59, 76)
 
 
-
 def check_passport_2(passport: dict) -> bool:
     if not check_passport_1(passport):
         return False
@@ -80,21 +80,22 @@ def check_passport_2(passport: dict) -> bool:
     return True
 
 
-def main():
-    from pathlib import Path
-
-    input_path = Path(__file__).parent / "passports.txt"
-
-    with input_path.open('r') as fp:
-        passports = list(parse_passports(fp.read()))
-
-    def agg(count, passport, checker):
-        return count + 1 if checker(passport) else count
-
-    for f in check_passport_1, check_passport_2:
-        valid_count = reduce(lambda c, p: agg(c, p, f), passports, 0)
-        print(valid_count)
+def solve_part1(passports):
+    def agg(count, passport):
+        return count + 1 if check_passport_1(passport) else count
+    return reduce(agg, passports, 0)
 
 
-if __name__ == "__main__":
-    main()
+def solve_part2(passports):
+    def agg(count, passport):
+        return count + 1 if check_passport_2(passport) else count
+    return reduce(agg, passports, 0)
+
+
+passports = list(parse_passports(stdin.read()))
+
+part = "2" if len(argv) > 1 and argv[1] == "2" else "1"
+if part == "1":
+    print(solve_part1(passports))
+else:
+    print(solve_part2(passports))

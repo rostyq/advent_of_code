@@ -1,4 +1,5 @@
 from enum import Enum
+from sys import stdin, argv
 
 
 class Tile(Enum):
@@ -15,9 +16,9 @@ class Tile(Enum):
             raise TypeError(f"cannot create tile from {s}")
 
 
-def parse_map(fp):
+def parse_map(lines):
     forest = []
-    for line in fp.readlines():
+    for line in lines:
         forest.append([Tile.from_str(char) for char in line.strip()])
     return forest
 
@@ -44,19 +45,12 @@ def count_trees(forest, steps):
     return tree_count
 
 
-def main():
-    from pathlib import Path
+def solve_part1(forest):
+    return count_trees(forest, create_steps(3, 1))
 
-    input_path = Path(__file__).parent / "forest_map.txt"
 
-    with input_path.open('r') as fp:
-        forest = parse_map(fp)
-
-    # part 1
+def solve_part2(forest):
     answer = count_trees(forest, create_steps(3, 1))
-    print(answer)
-
-    # part 2
     additional_slopes = [
         (1, 1),
         (5, 1),
@@ -67,8 +61,13 @@ def main():
     for dx, dy in additional_slopes:
         answer *= count_trees(forest, create_steps(dx, dy))
 
-    print(answer)
+    return answer
 
 
-if __name__ == "__main__":
-    main()
+forest = parse_map([line for line in filter(None, map(str.strip, stdin))])
+
+part = "2" if len(argv) > 1 and argv[1] == "2" else "1"
+if part == "1":
+    print(solve_part1(forest))
+else:
+    print(solve_part2(forest))

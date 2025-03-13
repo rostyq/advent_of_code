@@ -1,4 +1,6 @@
-import re
+from typing import Iterable
+from sys import stdin, argv
+from re import match
 
 
 class Policy:
@@ -44,13 +46,13 @@ class Policy2(Policy):
 
 
 def parse_entry(s, policy_factory):
-    result = re.match(r"(\d+)-(\d+) ([a-zA-Z]): ([a-zA-Z]+)", s)
+    result = match(r"(\d+)-(\d+) ([a-zA-Z]): ([a-zA-Z]+)", s)
     if result:
         number1, number2, letter, password = result.groups()
         return policy_factory(letter, int(number1), int(number2)), password
 
 
-def solve(entries, policy_factory):
+def solve(entries: Iterable[str], policy_factory: type[Policy]):
     valid_count = 0
 
     for entry in entries:
@@ -62,17 +64,7 @@ def solve(entries, policy_factory):
     return valid_count
 
 
-def main():
-    from pathlib import Path
+entries = [line for line in filter(None, map(str.strip, stdin))]
 
-    input_path = Path(__file__).parent / "toboggan_passwords.txt"
-
-    with input_path.open('r') as fp:
-        entries = fp.readlines()
-
-    print(solve(entries, Policy1))
-    print(solve(entries, Policy2))
-
-
-if __name__ == "__main__":
-    main()
+policy_factory = Policy2 if len(argv) > 1 and argv[1] == "2" else Policy1
+print(solve(entries, policy_factory))
